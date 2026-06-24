@@ -15,8 +15,8 @@ include $(THEOS_MAKE_PATH)/common.mk
 
 TWEAK_NAME = 34306jit
 
-$(TWEAK_NAME)_CCFLAGS = -std=c++17 -fobjc-arc -Wno-deprecated -Wno-error -Wno-unused-variable
-$(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wno-deprecated -Wno-error
+$(TWEAK_NAME)_CCFLAGS = -std=c++17 -fobjc-arc -Wno-deprecated -Wno-error -Wno-unused-variable -Wno-unused-function
+$(TWEAK_NAME)_CFLAGS = -fobjc-arc -Wno-deprecated -Wno-error -Wno-unused-variable -Wno-unused-function
 
 $(TWEAK_NAME)_FRAMEWORKS = UIKit Foundation Metal MetalKit QuartzCore CoreGraphics Security
 
