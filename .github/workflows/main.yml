@@ -19,19 +19,6 @@ jobs:
           echo "THEOS=$HOME/theos" >> $GITHUB_ENV
           echo "THEOS_MAKE_PATH=$HOME/theos/makefiles" >> $GITHUB_ENV
       
-      - name: Create SDK symlink
-        run: |
-          mkdir -p $HOME/theos/sdks
-          cd $HOME/theos/sdks
-          # Download iOS SDK nếu chưa có
-          if [ ! -d "iPhoneOS16.5.sdk" ]; then
-            wget -q https://github.com/xybp888/iOS-SDKs/raw/master/iPhoneOS16.5.sdk.zip
-            unzip -q iPhoneOS16.5.sdk.zip
-            rm iPhoneOS16.5.sdk.zip
-          fi
-          # Tạo symlink cho SDK 13.0
-          ln -sf iPhoneOS16.5.sdk iPhoneOS13.0.sdk
-      
       - name: Build tweak
         run: |
           cd $GITHUB_WORKSPACE
@@ -40,15 +27,5 @@ jobs:
       - name: Upload .deb
         uses: actions/upload-artifact@v4
         with:
-          name: deb-package
+          name: 34306jit.deb
           path: packages/*.deb
-          compression-level: 0
-          overwrite: true
-      
-      - name: Upload dylib (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: dylib-file
-          path: .theos/obj/arm64/*.dylib
-          compression-level: 0
-          overwrite: true
