@@ -20,7 +20,7 @@ jobs:
           echo "THEOS_MAKE_PATH=$HOME/theos/makefiles" >> $GITHUB_ENV
       
       - name: Build tweak
-        run: make clean package
+        run: make package
       
       - name: Upload .deb
         uses: actions/upload-artifact@v4
