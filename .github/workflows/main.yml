@@ -1,23 +1,31 @@
-name: Extract and Show on GitHub
+name: Build iOS Tweak
 
-on: [workflow_dispatch]
-
-permissions:
-  contents: write
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  extract:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: macos-latest
+    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Extract zip
-      run: unzip -o ol.zip -d ./
-    
-    - name: Commit extracted files
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git add .
-        git commit -m "Extracted files" || echo "No changes"
-        git push
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git $HOME/theos
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          echo "THEOS_MAKE_PATH=$HOME/theos/makefiles" >> $GITHUB_ENV
+      
+      - name: Build tweak
+        run: |
+          cd /workspaces/Dylib/ol
+          make clean package
+      
+      - name: Upload .deb
+        uses: actions/upload-artifact@v3
+        with:
+          name: deb-package
+          path: packages/*.deb
