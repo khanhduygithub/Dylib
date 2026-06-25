@@ -1,4 +1,4 @@
-name: Unzip and Upload
+name: Unzip duckdz.zip
 
 on:
   push:
@@ -13,33 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install 7zip
-        run: sudo apt-get install -y p7zip-full
+      - name: Install unzip
+        run: sudo apt-get install -y unzip
 
-      - name: Rename file (remove spaces)
+      - name: Extract duckdz.zip
         run: |
-          if [ -f "duckdz monite ui.zip" ]; then
-            mv "duckdz monite ui.zip" duckdz_monite_ui.zip
-            echo "✅ Renamed file"
-          elif [ -f "duckdz_monite_ui.zip" ]; then
-            echo "✅ File already has correct name"
+          mkdir -p extracted
+          if [ -f "duckdz.zip" ]; then
+            unzip -o duckdz.zip -d extracted/
+            echo "✅ Extracted successfully!"
+            ls -la extracted/
           else
-            echo "❌ File not found!"
+            echo "❌ File duckdz.zip not found!"
             ls -la *.zip 2>/dev/null || echo "No zip files found"
             exit 1
           fi
 
-      - name: Extract with 7zip
-        run: |
-          mkdir -p extracted
-          7z x duckdz_monite_ui.zip -oextracted/ -y
-          echo "✅ Extracted files:"
-          ls -la extracted/
-
       - name: Upload extracted files
         uses: actions/upload-artifact@v4
         with:
-          name: extracted-files
+          name: duckdz-extracted
           path: extracted/
           compression-level: 0
           overwrite: true
