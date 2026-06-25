@@ -1,38 +1,51 @@
-name: Unzip duckdz.zip
+name: Extract duckdz.zip
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    paths:
+      - 'duckdz.zip'
+  workflow_dispatch:  # Cho phép chạy thủ công
 
 jobs:
-  unzip:
+  extract:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install unzip
-        run: sudo apt-get install -y unzip
-
-      - name: Extract duckdz.zip
+      
+      - name: Extract ZIP file
         run: |
-          mkdir -p extracted
           if [ -f "duckdz.zip" ]; then
-            unzip -o duckdz.zip -d extracted/
-            echo "✅ Extracted successfully!"
-            ls -la extracted/
+            echo "📦 Đang giải nén duckdz.zip..."
+            unzip -o duckdz.zip -d extracted_content
+            echo "✅ Giải nén thành công!"
+            echo "📂 Nội dung đã giải nén:"
+            ls -la extracted_content/
           else
-            echo "❌ File duckdz.zip not found!"
-            ls -la *.zip 2>/dev/null || echo "No zip files found"
+            echo "❌ Không tìm thấy file duckdz.zip"
             exit 1
           fi
-
-      - name: Upload extracted files
+      
+      - name: Upload extracted content as artifact
         uses: actions/upload-artifact@v4
         with:
           name: duckdz-extracted
-          path: extracted/
-          compression-level: 0
-          overwrite: true
+          path: extracted_content/
+          retention-days: 90
+      
+      - name: Commit extracted files (optional)
+        run: |
+          if [ -d "extracted_content" ] && [ "$(ls -A extracted_content)" ]; then
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+            
+            # Di chuyển file đã giải nén vào thư mục mong muốn
+            mkdir -p duckdz_files
+            cp -r extracted_content/* duckdz_files/
+            
+            git add duckdz_files/
+            git commit -m "🤖 Auto-extract duckdz.zip" || echo "Không có thay đổi để commit"
+            git push || echo "Không thể push (có thể do branch protection)"
+          fi
+        continue-on-error: true
