@@ -1,47 +1,11 @@
-name: Extract duckdz.zip to current directory
+name: Extract zip
 
-on:
-  push:
-    paths:
-      - 'duckdz.zip'
-  workflow_dispatch:  # Cho phép chạy thủ công
+on: [push, workflow_dispatch]
 
 jobs:
-  extract-here:
+  extract:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Extract ZIP directly to current directory
-        run: |
-          if [ -f "duckdz.zip" ]; then
-            echo "📦 Đang giải nén duckdz.zip vào thư mục hiện tại..."
-            unzip -o duckdz.zip
-            echo "✅ Giải nén thành công!"
-            echo "📂 Nội dung sau khi giải nén:"
-            ls -la
-          else
-            echo "❌ Không tìm thấy file duckdz.zip"
-            exit 1
-          fi
-      
-      - name: Upload extracted files as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: extracted-files
-          path: .
-          retention-days: 90
-      
-      - name: Commit extracted files to repository
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          # Thêm tất cả file mới (trừ zip và workflow)
-          git add -A
-          git reset -- duckdz.zip .github/workflows/extract-zip.yml
-          
-          git commit -m "🤖 Extract duckdz.zip to current directory" || echo "Không có thay đổi để commit"
-          git push || echo "Không thể push"
+      - uses: actions/checkout@v4
+      - name: Giải nén duckdz.zip
+        run: unzip -o duckdz.zip
