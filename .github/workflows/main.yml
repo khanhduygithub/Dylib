@@ -1,4 +1,4 @@
-name: Extract duckdz.zip
+name: Extract duckdz.zip to current directory
 
 on:
   push:
@@ -7,45 +7,41 @@ on:
   workflow_dispatch:  # Cho phép chạy thủ công
 
 jobs:
-  extract:
+  extract-here:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Extract ZIP file
+      - name: Extract ZIP directly to current directory
         run: |
           if [ -f "duckdz.zip" ]; then
-            echo "📦 Đang giải nén duckdz.zip..."
-            unzip -o duckdz.zip -d extracted_content
+            echo "📦 Đang giải nén duckdz.zip vào thư mục hiện tại..."
+            unzip -o duckdz.zip
             echo "✅ Giải nén thành công!"
-            echo "📂 Nội dung đã giải nén:"
-            ls -la extracted_content/
+            echo "📂 Nội dung sau khi giải nén:"
+            ls -la
           else
             echo "❌ Không tìm thấy file duckdz.zip"
             exit 1
           fi
       
-      - name: Upload extracted content as artifact
+      - name: Upload extracted files as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: duckdz-extracted
-          path: extracted_content/
+          name: extracted-files
+          path: .
           retention-days: 90
       
-      - name: Commit extracted files (optional)
+      - name: Commit extracted files to repository
         run: |
-          if [ -d "extracted_content" ] && [ "$(ls -A extracted_content)" ]; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-            
-            # Di chuyển file đã giải nén vào thư mục mong muốn
-            mkdir -p duckdz_files
-            cp -r extracted_content/* duckdz_files/
-            
-            git add duckdz_files/
-            git commit -m "🤖 Auto-extract duckdz.zip" || echo "Không có thay đổi để commit"
-            git push || echo "Không thể push (có thể do branch protection)"
-          fi
-        continue-on-error: true
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Thêm tất cả file mới (trừ zip và workflow)
+          git add -A
+          git reset -- duckdz.zip .github/workflows/extract-zip.yml
+          
+          git commit -m "🤖 Extract duckdz.zip to current directory" || echo "Không có thay đổi để commit"
+          git push || echo "Không thể push"
