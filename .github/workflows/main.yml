@@ -1,13 +1,35 @@
-name: Extract zip
+name: Extract duckdz.zip
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  extract:
+  extract-duckdz:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-        with:
-          node-version: '24'
-      - name: Giải nén duckdz.zip
-        run: unzip -o duckdz.zip
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create extract directory
+      run: mkdir -p extracted
+    
+    - name: Extract duckdz.zip
+      run: |
+        if [ -f "duckdz.zip" ]; then
+          echo "📦 Found duckdz.zip, extracting..."
+          unzip -o duckdz.zip -d extracted/
+          echo "✅ Extract completed!"
+          ls -la extracted/
+        else
+          echo "❌ duckdz.zip not found!"
+          exit 1
+        fi
+    
+    - name: Upload extracted files
+      uses: actions/upload-artifact@v4
+      with:
+        name: duckdz-extracted
+        path: extracted/
